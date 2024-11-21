@@ -110,7 +110,7 @@ const Login = () => {
     <div className="login-container">
       <div className="login-form">
         <img
-          src={`../../assets/Logo1.png`}
+          src="../../assets/Logo1.png"
           alt="Logo"
           style={{
             display: "block",
