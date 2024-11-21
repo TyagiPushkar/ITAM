@@ -1,0 +1,79 @@
+/* Overall container for centering the login form */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+/* Styling for the login form */
+.login-form {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* Form heading */
+.login-form h2 {
+    margin-bottom: 20px;
+}
+
+/* Form groups for labels and inputs */
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* Styling the labels */
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* Styling for the input fields */
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+/* Submit button styling */
+.login-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #64759e;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+    background-color: #2e3e63;
+}
+
+/* Responsive design for mobile screens */
+@media (max-width: 600px) {
+    .login-form {
+        padding: 15px;
+    }
+
+    .form-group input {
+        font-size: 14px;
+    }
+
+    .login-button {
+        padding: 8px;
+        font-size: 14px;
+    }
+}
