@@ -1,9 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, useTheme, TextField, Switch } from "@mui/material";
+import {
+  Box,
+  Typography,
+  useTheme,
+  TextField,
+  Switch,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Button,
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { useNavigate } from "react-router-dom";
 import { tokens } from "../../theme";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import Header from "../../components/Header";
 
 const Team = () => {
@@ -13,6 +26,16 @@ const Team = () => {
   const [teamData, setTeamData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [editData, setEditData] = useState({
+    EmpId: "",
+    Name: "",
+    Mobile: "",
+    Email: "",
+    Role: "",
+    Functions: "",
+    Status: "",
+  });
 
   // Fetch data from the API
   const fetchTeamData = async () => {
@@ -22,7 +45,14 @@ const Team = () => {
         "https://namami-infotech.com/ITAM/api/users/get_users.php"
       );
       const data = await response.json();
-      setTeamData(data.records); // Assuming the data is under "records"
+
+      // Standardize DateOfJoining format to dd-mm-yyyy
+      const formattedData = data.records.map((item) => ({
+        ...item,
+        DateOfJoining: formatDate(item.DateOfJoining),
+      }));
+
+      setTeamData(formattedData); // Use formatted data
     } catch (error) {
       console.error("Error fetching team data:", error);
     } finally {
@@ -30,85 +60,72 @@ const Team = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const normalizedDateString = dateString.replace(/\//g, "-");
+    const dateParts = normalizedDateString.split("-");
+    if (dateParts[0].length === 4) {
+      return `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+    }
+    return normalizedDateString;
+  };
+
   useEffect(() => {
     fetchTeamData();
   }, []);
 
-  const columns = [
-    { field: "EmpId", headerName: "EmpId", width: 100 },
-    {
-      field: "Name",
-      headerName: "Name",
-      flex: 1,
-      cellClassName: "name-column--cell",
-    },
-    {
-      field: "Mobile",
-      headerName: "Mobile",
-      flex: 1,
-    },
-    {
-      field: "Email",
-      headerName: "Email",
-      flex: 1,
-    },
-    {
-      field: "Role",
-      headerName: "Designation",
-      flex: 1,
-    },
-    {
-      field: "Status",
-      headerName: "Status",
-      flex: 1,
-    },
-    {
-      field: "DateOfJoining",
-      headerName: "Date of Joining",
-      flex: 1,
-    },
-    {
-      field: "Actions",
-      headerName: "Actions",
-      renderCell: (params) => {
-        const isUserActive = params.row.Status === "Active";
-        return (
-          <Switch
-            checked={isUserActive}
-            onChange={() =>
-              handleToggleUserStatus(params.row.EmpId, isUserActive)
-            }
-            style={{ color: "#3DA58A" }}
-          />
-        );
-      },
-      width: 150,
-    },
-  ];
-
-  // Handle row click to redirect to the employee details page
-  const handleRowClick = (params) => {
-    navigate(`/employee/${params.row.EmpId}`); // Redirect to employee details route
+  const handleEditClick = (rowData) => {
+    setEditData(rowData);
+    setOpenEditDialog(true);
   };
 
-  // Function to handle activate/deactivate user
-  const handleToggleUserStatus = (empId, isCurrentlyActive) => {
-    // Prepare data for API call
-    const data = { EmpId: empId };
+  const handleEditSubmit = async () => {
+    try {
+      const response = await fetch(
+        "https://namami-infotech.com/ITAM/api/users/edit_user.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editData),
+        }
+      );
+      const result = await response.json();
+      if (result.message.includes("User details were updated")) {
+        alert("Employee updated successfully.");
+        fetchTeamData();
+        setOpenEditDialog(false);
+      } else {
+        alert("Failed to update employee.");
+      }
+    } catch (error) {
+      console.error("Error updating employee:", error);
+      alert("An error occurred. Please try again.");
+    }
+  };
 
-    // API call to toggle the user's status
-    fetch("https://namami-infotech.com/ITAM/api/users/deactivate_user.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
+  const handleRowClick = (params) => {
+    navigate(`/employee/${params.row.EmpId}`);
+  };
+
+  const handleToggleUserStatus = (empId, isCurrentlyActive) => {
+    const data = { EmpId: empId };
+    fetch(
+      "https://namami-infotech.com/ITAM/api/users/deactivate_user.php",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    )
       .then((response) => response.json())
       .then((result) => {
         if (result.message.includes("User status updated")) {
           alert(result.message);
-          fetchTeamData(); // Reload data after successful toggle
+          fetchTeamData();
         } else {
           alert("Failed to update user status.");
         }
@@ -119,18 +136,59 @@ const Team = () => {
       });
   };
 
-  // Filter team data based on the search term
-  const filteredTeamData = teamData.filter(
-    (item) =>
-      item.Name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.Mobile.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.Email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.Role.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTeamData = teamData.filter((item) => {
+    const name = item.Name || ""; // Default to an empty string if null
+    const mobile = item.Mobile || ""; // Default to an empty string if null
+    const email = item.Email || ""; // Default to an empty string if null
+    const role = item.Role || ""; // Default to an empty string if null
+    const functions = item.Functions || "";
+
+    return (
+      name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      mobile.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      functions.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
+  const columns = [
+    { field: "EmpId", headerName: "EmpId", width: 100 },
+    { field: "Name", headerName: "Name", flex: 1 },
+    { field: "Mobile", headerName: "Mobile", flex: 1 },
+    { field: "Email", headerName: "Email", flex: 1 },
+    { field: "Role", headerName: "Designation", flex: 1 },
+    { field: "Status", headerName: "Status", flex: 1 },
+    { field: "DateOfJoining", headerName: "Date of Joining", flex: 1 },
+    {
+      field: "Actions",
+      headerName: "Actions",
+      renderCell: (params) => (
+        <>
+          <IconButton onClick={() => handleRowClick(params)}>
+            <VisibilityOutlinedIcon style={{ color: colors.blueAccent[500] }} />
+          </IconButton>
+          <IconButton onClick={() => handleEditClick(params.row)}>
+            <EditOutlinedIcon style={{ color: colors.greenAccent[500] }} />
+          </IconButton>
+          <Switch
+            checked={params.row.Status === "Active"}
+            onChange={() =>
+              handleToggleUserStatus(
+                params.row.EmpId,
+                params.row.Status === "Active"
+              )
+            }
+            style={{ color: "#3DA58A" }}
+          />
+        </>
+      ),
+      width: 200,
+    },
+  ];
 
   return (
     <Box m="20px">
-      {/* Wrap Header, Add New button, and search field in a Box */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="TEAM" subtitle="Managing the Team Members" />
         <Box mt={2} mb={2}>
@@ -167,49 +225,84 @@ const Team = () => {
           <PersonOutlinedIcon sx={{ color: colors.grey[100] }} />
         </Box>
       </Box>
-
-      {/* DataGrid */}
       <Box
         m="10px 0 0 0"
         height="75vh"
         sx={{
-          "& .MuiDataGrid-root": {
-            border: "none",
-          },
-          "& .MuiDataGrid-cell": {
-            borderBottom: "none",
-          },
-          "& .name-column--cell": {
-            color: colors.greenAccent[300],
-          },
+          "& .MuiDataGrid-root": { border: "none" },
+          "& .MuiDataGrid-cell": { borderBottom: "none" },
           "& .MuiDataGrid-columnHeaders": {
             backgroundColor: colors.blueAccent[700],
-            borderBottom: "none",
-          },
-          "& .MuiDataGrid-virtualScroller": {
-            backgroundColor: colors.primary[400],
-          },
-          "& .MuiDataGrid-footerContainer": {
-            borderTop: "none",
-            backgroundColor: colors.blueAccent[700],
-          },
-          "& .MuiCheckbox-root": {
-            color: `${colors.greenAccent[200]} !important`,
           },
         }}
       >
         <DataGrid
-          checkboxSelection
           rows={filteredTeamData.map((item, index) => ({
             ...item,
             id: index + 1,
           }))}
           columns={columns}
           loading={loading}
-          onRowClick={handleRowClick} // Add row click handler
           sx={{ cursor: "pointer" }}
         />
       </Box>
+
+      {/* Edit Dialog */}
+      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)}>
+        <DialogTitle>Edit Employee</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Name"
+            fullWidth
+            margin="dense"
+            value={editData.Name}
+            onChange={(e) => setEditData({ ...editData, Name: e.target.value })}
+          />
+          <TextField
+            label="Mobile"
+            fullWidth
+            margin="dense"
+            value={editData.Mobile}
+            onChange={(e) =>
+              setEditData({ ...editData, Mobile: e.target.value })
+            }
+          />
+          <TextField
+            label="Email"
+            fullWidth
+            margin="dense"
+            value={editData.Email}
+            onChange={(e) =>
+              setEditData({ ...editData, Email: e.target.value })
+            }
+          />
+          <TextField
+            label="Designation"
+            fullWidth
+            margin="dense"
+            value={editData.Role}
+            onChange={(e) => setEditData({ ...editData, Role: e.target.value })}
+          />
+          <TextField
+            label="Department"
+            fullWidth
+            margin="dense"
+            value={editData.Functions}
+            onChange={(e) =>
+              setEditData({ ...editData, Functions: e.target.value })
+            }
+          />
+          <Box mt={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleEditSubmit}
+            >
+              Save
+            </Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };
