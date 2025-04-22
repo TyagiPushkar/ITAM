@@ -1,25 +1,24 @@
 import {
   Box,
-  Button,
-  IconButton,
   Typography,
   useTheme,
   Select,
   MenuItem,
+  Button,
 } from "@mui/material";
 import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { tokens } from "../../theme";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import EmailIcon from "@mui/icons-material/Email";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import Header from "../../components/Header";
 import StatBox from "../../components/StatBox";
 import PieChart from "../../components/PieChart";
-import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState({
     assetStats: {},
     ticketStats: {},
@@ -28,7 +27,6 @@ const Dashboard = () => {
   });
   const [selectedAssetName, setSelectedAssetName] = useState("");
   const [pieChartData, setPieChartData] = useState([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -49,7 +47,6 @@ const Dashboard = () => {
         const statusCounts = {
           Live: 0,
           Faulty: 0,
-          "In Stock": 0,
         };
 
         filteredAssets.forEach((asset) => {
@@ -81,7 +78,6 @@ const Dashboard = () => {
     const statusCounts = {
       Live: 0,
       Faulty: 0,
-      "In Stock": 0,
     };
 
     filteredAssets.forEach((asset) => {
@@ -101,6 +97,10 @@ const Dashboard = () => {
     ...new Set(dashboardData.assetDetails.map((asset) => asset.AssetName)),
   ];
 
+  const openTickets = dashboardData.ticketDetails.filter(
+    (ticket) => ticket.Status === "Open"
+  );
+
   return (
     <Box m="20px">
       <Box display="flex" justifyContent="space-between" alignItems="center">
@@ -114,33 +114,59 @@ const Dashboard = () => {
         gap="20px"
         mt="20px"
       >
-        <StatBox
-          title={dashboardData.assetStats.totalAssets || 0}
-          subtitle="Total Assets"
-          icon={
-            <PointOfSaleIcon
-              sx={{ color: colors.greenAccent[600], fontSize: 30 }}
-            />
-          }
-        />
-        <StatBox
-          title={dashboardData.assetStats.liveAssets || 0}
-          subtitle="Live Assets"
-          icon={
-            <PointOfSaleIcon
-              sx={{ color: colors.greenAccent[600], fontSize: 30 }}
-            />
-          }
-        />
-        <StatBox
-          title={dashboardData.assetStats.inStockAssets || 0}
-          subtitle="In Stock Assets"
-          icon={
-            <PointOfSaleIcon
-              sx={{ color: colors.greenAccent[600], fontSize: 30 }}
-            />
-          }
-        />
+        <Box onClick={() => navigate("/asset")} sx={{ cursor: "pointer" }}>
+          <StatBox
+            title={dashboardData.assetStats.totalAssets || 0}
+            subtitle="Total Assets"
+            icon={
+              <PointOfSaleIcon
+                sx={{ color: colors.greenAccent[600], fontSize: 30 }}
+              />
+            }
+          />
+        </Box>
+        <Box
+          onClick={() => navigate("/asset?status=Live")}
+          sx={{ cursor: "pointer" }}
+        >
+          <StatBox
+            title={dashboardData.assetStats.liveAssets || 0}
+            subtitle="Live Assets"
+            icon={
+              <PointOfSaleIcon
+                sx={{ color: colors.greenAccent[600], fontSize: 30 }}
+              />
+            }
+          />
+        </Box>
+        <Box
+          onClick={() => navigate("/asset?status=In Stock")}
+          sx={{ cursor: "pointer" }}
+        >
+          <StatBox
+            title={dashboardData.assetStats.inStockAssets || 0}
+            subtitle="In Stock Assets"
+            icon={
+              <PointOfSaleIcon
+                sx={{ color: colors.greenAccent[600], fontSize: 30 }}
+              />
+            }
+          />
+        </Box>
+        <Box
+          onClick={() => navigate("/asset?status=Faulty")}
+          sx={{ cursor: "pointer" }}
+        >
+          <StatBox
+            title={dashboardData.assetStats.faultyAssets || 0}
+            subtitle="Faulty Assets"
+            icon={
+              <PointOfSaleIcon
+                sx={{ color: colors.greenAccent[600], fontSize: 30 }}
+              />
+            }
+          />
+        </Box>
       </Box>
 
       <Box
@@ -191,7 +217,10 @@ const Dashboard = () => {
             </Box>
           </Box>
           <Box height="300px" m="-20px 0 0 0">
-            <PieChart pieData={pieChartData} />
+            <PieChart
+              pieData={pieChartData}
+              assetDetails={dashboardData.assetDetails}
+            />
           </Box>
         </Box>
 
@@ -213,7 +242,14 @@ const Dashboard = () => {
             </Typography>
           </Box>
           <StatBox
-            title={dashboardData.ticketStats.totalTickets || 0}
+            title={
+              <Link
+                to="/support-ticket"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                {dashboardData.ticketStats.totalTickets || 0}
+              </Link>
+            }
             subtitle="Total Tickets"
             icon={
               <EmailIcon
@@ -222,7 +258,14 @@ const Dashboard = () => {
             }
           />
           <StatBox
-            title={dashboardData.ticketStats.openTickets || 0}
+            title={
+              <Link
+                to="/support-ticket?status=Open"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                {dashboardData.ticketStats.openTickets || 0}
+              </Link>
+            }
             subtitle="Open Tickets"
             icon={
               <EmailIcon
@@ -231,7 +274,14 @@ const Dashboard = () => {
             }
           />
           <StatBox
-            title={dashboardData.ticketStats.resolvedTickets || 0}
+            title={
+              <Link
+                to="/support-ticket?status=Resolved"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                {dashboardData.ticketStats.resolvedTickets || 0}
+              </Link>
+            }
             subtitle="Resolved Tickets"
             icon={
               <EmailIcon

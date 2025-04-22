@@ -76,7 +76,72 @@ const AssetDetail = () => {
       setUpdateLoading(false);
     }
   };
+  const updateStatusToRetire = async () => {
+    setUpdateLoading(true);
+    try {
+      const response = await fetch(
+        "https://namami-infotech.com/ITAM/api/assets/update_status.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            AssetID: assetDetail.AssetId,
+            Status: "Retire",
+          }),
+        }
+      );
 
+      const data = await response.json();
+      if (data.success) {
+        setAssetDetail((prev) => ({ ...prev, Status: "In stock" }));
+        fetchAssetDetail();
+        fetchIssueHistory();
+      } else {
+        fetchAssetDetail();
+        fetchIssueHistory();
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("An error occurred while updating the status.");
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+  const updateStatusToInStockAgain = async () => {
+    setUpdateLoading(true);
+    try {
+      const response = await fetch(
+        "https://namami-infotech.com/ITAM/api/assets/update_status.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            AssetID: assetDetail.AssetId,
+            Status: "In stock",
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (data.success) {
+        setAssetDetail((prev) => ({ ...prev, Status: "In stock" }));
+        fetchAssetDetail();
+        fetchIssueHistory();
+      } else {
+        fetchAssetDetail();
+        fetchIssueHistory();
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("An error occurred while updating the status.");
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
   if (loading) {
     return (
       <Box
@@ -187,19 +252,39 @@ const AssetDetail = () => {
           </Grid>
         </Grid>
       </Box>
-
-      {/* Button to Update Status */}
-      <Box mt="20px">
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={updateStatusToInStock}
-          disabled={assetDetail.Status != "In stock"}
-        >
-          {updateLoading ? "Updating..." : "Mark as Faulty"}
-        </Button>
-      </Box>
-
+      <div style={{ display: "flex", gap: "20px" }}>
+        {/* Button to Update Status */}
+        <Box mt="20px">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={updateStatusToInStock}
+            disabled={assetDetail.Status != "In stock"}
+          >
+            {updateLoading ? "Updating..." : "Mark as Faulty"}
+          </Button>
+        </Box>
+        <Box mt="20px">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={updateStatusToInStockAgain}
+            disabled={assetDetail.Status != "Faulty"}
+          >
+            {updateLoading ? "Updating..." : "Restore Faulty"}
+          </Button>
+        </Box>
+        <Box mt="20px">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={updateStatusToRetire}
+            disabled={assetDetail.Status != "In stock"}
+          >
+            {updateLoading ? "Updating..." : "Mark as Retire"}
+          </Button>
+        </Box>
+      </div>
       {/* Asset Issue History Section */}
       <Box mt="20px">
         <Typography variant="h5">Issue History</Typography>
