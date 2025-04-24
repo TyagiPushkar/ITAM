@@ -17,7 +17,8 @@ import Papa from "papaparse";
 import { saveAs } from "file-saver";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import { useLocation } from "react-router-dom";
-
+import AddIcon from "@mui/icons-material/Add";
+import DownloadIcon from "@mui/icons-material/Download";
 const Asset = () => {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -235,7 +236,7 @@ const Asset = () => {
                 },
               }}
             />
-            <TextField
+            {/* <TextField
               label="Asset Type"
               variant="outlined"
               value={assetTypeFilter}
@@ -249,7 +250,7 @@ const Asset = () => {
                   backgroundColor: colors.primary[400],
                 },
               }}
-            />
+            /> */}
             <TextField
               label="Status"
               variant="outlined"
@@ -277,10 +278,10 @@ const Asset = () => {
             sx={{ cursor: "pointer" }}
             onClick={handleRedirect}
           >
-            <Typography color={colors.grey[100]} sx={{ mr: "5px" }}>
+            {/* <Typography color={colors.grey[100]} sx={{ mr: "5px" }}>
               Add New
-            </Typography>
-            <Devices sx={{ color: colors.grey[100] }} />
+            </Typography> */}
+            <AddIcon sx={{ color: colors.grey[100] }} />
           </Box>
           <Box
             p="5px"
@@ -291,10 +292,10 @@ const Asset = () => {
             sx={{ cursor: "pointer" }}
             onClick={exportCSV}
           >
-            <Typography color={colors.grey[100]} sx={{ mr: "5px" }}>
+            {/* <Typography color={colors.grey[100]} sx={{ mr: "5px" }}>
               Export CSV
-            </Typography>
-            <SummarizeIcon sx={{ color: colors.grey[100] }} />
+            </Typography> */}
+            <DownloadIcon sx={{ color: colors.grey[100] }} />
           </Box>
         </Box>
       </Box>

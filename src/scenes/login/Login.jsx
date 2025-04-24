@@ -107,9 +107,13 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
+    <div className="login-container" style={{ backgroundColor: "#1F2A40" }}>
       <div className="login-form">
-        <img src={`../../assets/Logo.png`} alt="Logo" />
+        <img
+          src={`../../assets/Logo.png`}
+          alt="Logo"
+          style={{ width: "200px" }}
+        />
         <h2>{isForgotPassword ? "Forgot Password" : "Login"}</h2>
 
         {!isForgotPassword ? (

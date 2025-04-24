@@ -6,7 +6,7 @@ import { saveAs } from "file-saver";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import SummarizeIcon from "@mui/icons-material/Summarize";
-
+import DownloadIcon from "@mui/icons-material/Download";
 const Report = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -114,7 +114,7 @@ const Report = () => {
 
         {/* Export Button */}
         <Box
-          width="20%"
+          width="5%"
           p="5px"
           display="flex"
           justifyContent="center"
@@ -123,10 +123,7 @@ const Report = () => {
           sx={{ cursor: "pointer" }}
           onClick={exportCSV}
         >
-          <Typography color={colors.grey[100]} sx={{ mr: "5px" }}>
-            Export Report as CSV
-          </Typography>
-          <SummarizeIcon sx={{ color: colors.grey[100] }} />
+          <DownloadIcon sx={{ color: colors.grey[100] }} />
         </Box>
       </Box>
 
