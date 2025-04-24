@@ -11,7 +11,6 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../components/Header";
-import { useNavigate } from "react-router-dom";
 
 const AddAsset = () => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
@@ -20,7 +19,7 @@ const AddAsset = () => {
   const [fieldNames, setFieldNames] = useState([]);
   const [selectedAssetId, setSelectedAssetId] = useState("");
   const [loading, setLoading] = useState(false);
-const navigate = useNavigate(); 
+
   const [formValues, setFormValues] = useState({
     assetType: "",
     assetName: "",
@@ -163,7 +162,6 @@ const navigate = useNavigate();
       alert("Failed to add asset");
     } finally {
       setLoading(false);
-      navigate("/asset"); 
     }
   };
 

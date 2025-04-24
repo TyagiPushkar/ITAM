@@ -8,10 +8,10 @@ import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { Devices } from "@mui/icons-material";
-import FormatListNumberedIcon from "@mui/icons-material/FormatListNumbered";
-import LiveHelpIcon from "@mui/icons-material/LiveHelp";
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
+import LiveHelpIcon from '@mui/icons-material/LiveHelp';
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import SummarizeIcon from "@mui/icons-material/Summarize";
+import SummarizeIcon from '@mui/icons-material/Summarize';
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -30,6 +30,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
   );
 };
 
+
 const Sidebar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -39,11 +40,8 @@ const Sidebar = () => {
   // Retrieve user data from local storage
   const userDetails = JSON.parse(localStorage.getItem("userDetails")) || {};
   const { Name, Role } = userDetails; // Destructure Name and Role from userDetails
-  // Determine the logo based on theme mode
-  const logoSrc =
-    theme.palette.mode === "light"
-      ? "../../assets/LogoLight.png"
-      : "../../assets/Logo.png";
+ // Determine the logo based on theme mode
+  const logoSrc = theme.palette.mode === 'light' ? '../../assets/LogoLight.png' : '../../assets/Logo.png';
 
   return (
     <Box
@@ -85,7 +83,10 @@ const Sidebar = () => {
                 alignItems="center"
                 ml="15px"
               >
-                <Typography variant="h3" color={colors.grey[100]}></Typography>
+                <Typography variant="h3" color={colors.grey[100]}>
+                  NIVESHAN
+                </Typography>
+                
               </Box>
             )}
           </MenuItem>
@@ -100,15 +101,6 @@ const Sidebar = () => {
                   style={{ cursor: "pointer" }}
                 />
               </Box>
-              <Typography
-                variant="h6"
-                color={colors.greenAccent[500]}
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-              >
-                IT Assets Management
-              </Typography>
               <Box textAlign="center">
                 <Typography
                   variant="h2"
@@ -127,24 +119,27 @@ const Sidebar = () => {
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             {/* Public Route */}
+           
 
             {/* Admin-Only Routes */}
             {Role === "Admin" && (
+
+              
               <Item
-                title="Dashboard"
-                to="/dashboard"
-                icon={<HomeOutlinedIcon />}
-                selected={selected}
-                setSelected={setSelected}
-              />
-            )}
-            <Item
-              title="Profile"
-              to="/"
-              icon={<PersonOutlinedIcon />}
+              title="Dashboard"
+              to="/dashboard"
+              icon={<HomeOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
-            />
+                />
+            )}
+             <Item
+                  title="Profile"
+                  to="/"
+                  icon={<PersonOutlinedIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
             {Role === "Admin" && (
               <>
                 <Typography
@@ -175,22 +170,25 @@ const Sidebar = () => {
                   selected={selected}
                   setSelected={setSelected}
                 />
-                <Item
+                 <Item
                   title="Reports"
                   to="/reports"
                   icon={<SummarizeIcon />}
                   selected={selected}
                   setSelected={setSelected}
                 />
+               
+                
               </>
             )}
-            <Item
-              title="Support Ticket"
-              to="/support-ticket"
-              icon={<LiveHelpIcon />}
-              selected={selected}
-              setSelected={setSelected}
+             <Item
+                  title="Support Ticket"
+                  to="/support-ticket"
+                  icon={<LiveHelpIcon />}
+                  selected={selected}
+                  setSelected={setSelected}
             />
+            
           </Box>
         </Menu>
       </ProSidebar>

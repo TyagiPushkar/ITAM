@@ -149,28 +149,12 @@ const IssuedAssets = () => {
         }}
       >
         <DataGrid
-          rows={
-            Array.isArray(issuedAssets) && issuedAssets.length > 0
-              ? issuedAssets.map((item, index) => ({
-                  ...item,
-                  id: index + 1,
-                }))
-              : []
-          }
+          rows={issuedAssets.map((item, index) => ({
+            ...item,
+            id: index + 1, // Assigning a unique id for each row
+          }))}
           columns={columns}
           loading={loading}
-          components={{
-            NoRowsOverlay: () => (
-              <Box
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                height="100%"
-              >
-                <Typography>No issued assets available.</Typography>
-              </Box>
-            ),
-          }}
         />
       </Box>
     </Box>

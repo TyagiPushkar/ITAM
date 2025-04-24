@@ -109,16 +109,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-form">
-        <img
-          src="../../assets/Logo1.PNG"
-          alt="Logo"
-          style={{
-            display: "block",
-            margin: "0 auto",
-            width: "200px",
-          }}
-        />
-
+        <img src={`../../assets/Logo.png`} alt="Logo" />
         <h2>{isForgotPassword ? "Forgot Password" : "Login"}</h2>
 
         {!isForgotPassword ? (

@@ -1,4 +1,3 @@
-// Importing necessary dependencies
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -17,6 +16,7 @@ import Header from "../../components/Header";
 import Papa from "papaparse";
 import { saveAs } from "file-saver";
 import SummarizeIcon from "@mui/icons-material/Summarize";
+import { useLocation } from "react-router-dom";
 
 const Asset = () => {
   const theme = useTheme();
@@ -24,9 +24,26 @@ const Asset = () => {
   const colors = tokens(theme.palette.mode);
   const [assetData, setAssetData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [assetIdFilter, setAssetIdFilter] = useState("");
+  const [assetNameFilter, setAssetNameFilter] = useState("");
+  const [assetTypeFilter, setAssetTypeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedAsset, setSelectedAsset] = useState(null);
+  const location = useLocation();
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const statusQuery = queryParams.get("status");
+    const AssetNameQuery = queryParams.get("AssetName");
+
+    if (statusQuery) {
+      setStatusFilter(statusQuery);
+    }
+
+    if (AssetNameQuery) {
+      setAssetNameFilter(AssetNameQuery); // Corrected to set assetNameFilter
+    }
+  }, [location.search]);
 
   // Fetch data from the API
   useEffect(() => {
@@ -138,12 +155,14 @@ const Asset = () => {
       Model: asset.Model,
       "S/No.": asset.SerialNo,
       Vendor: asset.VendorName,
+      InvoiceDate: asset.InvoiceDate,
       Status: asset.Status,
       MacAddress: asset.MacAddress,
       Processor: asset.Processor,
       Warranty: asset.Warranty,
       RAM: asset.RAM,
       Harddisk: asset.Harddisk,
+      AddOn: new Date(asset.AddDateTime).toLocaleDateString(),
     }));
 
     const csv = Papa.unparse(csvData);
@@ -151,12 +170,17 @@ const Asset = () => {
     saveAs(blob, "assets_report.csv");
   };
 
+  // Apply multi-filtering logic
   const filteredAssets = assetData.filter(
     (asset) =>
-      asset.AssetName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      asset.AssetType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      asset.Status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      asset.AssetId.toString().includes(searchTerm)
+      (asset.AssetId.toString().includes(assetIdFilter) ||
+        assetIdFilter === "") &&
+      (asset.AssetName.toLowerCase().includes(assetNameFilter.toLowerCase()) ||
+        assetNameFilter === "") &&
+      (asset.AssetType.toLowerCase().includes(assetTypeFilter.toLowerCase()) ||
+        assetTypeFilter === "") &&
+      (asset.Status.toLowerCase().includes(statusFilter.toLowerCase()) ||
+        statusFilter === "")
   );
 
   return (
@@ -164,7 +188,7 @@ const Asset = () => {
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="ASSETS" subtitle="Managing the Assets" />
         <Box mt={2} mb={2}>
-          <TextField
+          {/* <TextField
             label="Search assets..."
             variant="outlined"
             fullWidth
@@ -179,7 +203,69 @@ const Asset = () => {
                 backgroundColor: colors.primary[400],
               },
             }}
-          />
+          /> */}
+          <Box display="flex" gap="15px" mt={2}>
+            <TextField
+              label="Asset ID"
+              variant="outlined"
+              value={assetIdFilter}
+              onChange={(e) => setAssetIdFilter(e.target.value)}
+              InputLabelProps={{
+                style: { color: colors.grey[100] },
+              }}
+              InputProps={{
+                style: {
+                  color: colors.grey[100],
+                  backgroundColor: colors.primary[400],
+                },
+              }}
+            />
+            <TextField
+              label="Asset Name"
+              variant="outlined"
+              value={assetNameFilter}
+              onChange={(e) => setAssetNameFilter(e.target.value)}
+              InputLabelProps={{
+                style: { color: colors.grey[100] },
+              }}
+              InputProps={{
+                style: {
+                  color: colors.grey[100],
+                  backgroundColor: colors.primary[400],
+                },
+              }}
+            />
+            <TextField
+              label="Asset Type"
+              variant="outlined"
+              value={assetTypeFilter}
+              onChange={(e) => setAssetTypeFilter(e.target.value)}
+              InputLabelProps={{
+                style: { color: colors.grey[100] },
+              }}
+              InputProps={{
+                style: {
+                  color: colors.grey[100],
+                  backgroundColor: colors.primary[400],
+                },
+              }}
+            />
+            <TextField
+              label="Status"
+              variant="outlined"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              InputLabelProps={{
+                style: { color: colors.grey[100] },
+              }}
+              InputProps={{
+                style: {
+                  color: colors.grey[100],
+                  backgroundColor: colors.primary[400],
+                },
+              }}
+            />
+          </Box>
         </Box>
         <Box display="flex" gap="10px">
           <Box

@@ -7,6 +7,11 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Modal,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { tokens } from "../../theme";
@@ -19,14 +24,14 @@ const Profile = () => {
   const [assetsData, setAssetsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [assetsLoading, setAssetsLoading] = useState(true);
-  const [anchorEl, setAnchorEl] = useState(null); // For handling the menu
-  const [currentAsset, setCurrentAsset] = useState(null); // To keep track of the selected asset
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [currentAsset, setCurrentAsset] = useState(null); // Track selected asset
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [assetDetails, setAssetDetails] = useState(null); // Details for modal
 
-  // Fetch EmpId from local storage
   const userDetails = JSON.parse(localStorage.getItem("userDetails"));
-  const EmpId = userDetails ? userDetails.EmpId : ""; // Fallback to empty if not found
+  const EmpId = userDetails ? userDetails.EmpId : "";
 
-  // Fetch employee data by EmpId
   useEffect(() => {
     const fetchEmployeeData = async () => {
       if (!EmpId) {
@@ -70,19 +75,40 @@ const Profile = () => {
     fetchAssetsData();
   }, [EmpId]);
 
-  // Handle menu open
-  const handleMenuClick = (event, asset) => {
-    setAnchorEl(event.currentTarget);
-    setCurrentAsset(asset); // Store the selected asset
+  // Fetch asset details for modal
+  const fetchAssetDetails = async (assetId) => {
+    try {
+      const response = await fetch(
+        `https://namami-infotech.com/ITAM/api/assets/get_assets.php?AssetId=${assetId}`
+      );
+      const data = await response.json();
+      setAssetDetails(data.data[0]);
+    } catch (error) {
+      console.error("Error fetching asset details:", error);
+    }
   };
 
-  // Handle menu close
+  // Open modal and fetch details
+  const handleAssetClick = (assetId) => {
+    setIsModalOpen(true);
+    fetchAssetDetails(assetId);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setAssetDetails(null);
+  };
+
+  const handleMenuClick = (event, asset) => {
+    setAnchorEl(event.currentTarget);
+    setCurrentAsset(asset);
+  };
+
   const handleMenuClose = () => {
     setAnchorEl(null);
     setCurrentAsset(null);
   };
 
-  // Function to handle status update
   const handleStatusChange = async (newStatus) => {
     if (!currentAsset) return;
 
@@ -103,14 +129,13 @@ const Profile = () => {
       const data = await response.json();
       if (data.message) {
         console.log("Status updated:", data.message);
-        // Update the asset status in the state
         const updatedAssets = assetsData.map((asset) =>
           asset.AssetID === currentAsset.AssetID
             ? { ...asset, Status: newStatus }
             : asset
         );
         setAssetsData(updatedAssets);
-        handleMenuClose(); // Close the menu after status update
+        handleMenuClose();
       } else {
         console.error("Error updating status:", data.message);
       }
@@ -149,7 +174,6 @@ const Profile = () => {
         </Typography>
       </Box>
 
-      {/* Issued Assets Section */}
       <Box mt="20px">
         <Typography variant="h6" mb="10px">
           Issued Assets
@@ -165,6 +189,8 @@ const Profile = () => {
                   p="20px"
                   backgroundColor={colors.blueAccent[700]}
                   borderRadius="8px"
+                  style={{ cursor: "pointer", position: "relative" }}
+                  onClick={() => handleAssetClick(asset.AssetID)} // Open modal for asset details
                 >
                   <Box display="flex" justifyContent="space-between">
                     <div>
@@ -181,9 +207,6 @@ const Profile = () => {
                         Issue Date: {asset.IssueDate}
                       </Typography>
                       <Typography variant="subtitle1">
-                        Accepted / Rejected Date: {asset.AcceptedDate}
-                      </Typography>
-                      <Typography variant="subtitle1">
                         Remark: {asset.Remark}
                       </Typography>
                     </div>
@@ -191,8 +214,10 @@ const Profile = () => {
                       <IconButton
                         aria-controls="simple-menu"
                         aria-haspopup="true"
-                        onClick={(event) => handleMenuClick(event, asset)}
-                        style={{ marginBottom: "100px" }}
+                        onClick={(event) => {
+                          event.stopPropagation(); // Prevent modal opening
+                          handleMenuClick(event, asset);
+                        }}
                       >
                         <MoreVertIcon sx={{ color: colors.grey[100] }} />
                       </IconButton>
@@ -207,7 +232,6 @@ const Profile = () => {
         )}
       </Box>
 
-      {/* Menu for Accept/Reject options */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -226,6 +250,37 @@ const Profile = () => {
           Reject
         </MenuItem>
       </Menu>
+
+      {/* Modal for asset details */}
+      <Modal open={isModalOpen} onClose={handleCloseModal}>
+        <Box
+          m="auto"
+          mt="100px"
+          p="20px"
+          backgroundColor={colors.primary[400]}
+          borderRadius="8px"
+          maxWidth="600px"
+        >
+          {assetDetails ? (
+            <>
+              <Typography variant="h6">Asset Details</Typography>
+              <Typography>Asset ID: {assetDetails.AssetId}</Typography>
+              <Typography>Asset Name: {assetDetails.AssetName}</Typography>
+              <Typography>Type: {assetDetails.AssetType}</Typography>
+              <Typography>Condition: {assetDetails.AssetCondition}</Typography>
+              <Typography>Make: {assetDetails.Make}</Typography>
+              <Typography>Model: {assetDetails.Model}</Typography>
+              <Typography>Serial No: {assetDetails.SerialNo}</Typography>
+              <Typography>Processor: {assetDetails.Processor}</Typography>
+              <Typography>RAM: {assetDetails.RAM}</Typography>
+              <Typography>Harddisk: {assetDetails.Harddisk}</Typography>
+              <Typography>Status: {assetDetails.Status}</Typography>
+            </>
+          ) : (
+            <Typography>Loading asset details...</Typography>
+          )}
+        </Box>
+      </Modal>
     </Box>
   );
 };
