@@ -13,6 +13,8 @@ const TicketDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updateRemark, setUpdateRemark] = useState("");
+  const [forwardRemark, setForwardRemark] = useState("");
+  const [forwardImage, setForwardImage] = useState(null); // for image upload
 
   // Set the status to "Resolved" by default
   const status = "Resolved";
@@ -100,6 +102,40 @@ const TicketDetail = () => {
       }
     } catch (error) {
       alert("Failed to resolve the ticket. Please try again.");
+    }
+  };
+  const handleForwardToL2 = async () => {
+    const formData = new FormData();
+    formData.append("id", ticket.id);
+    formData.append("Status", "Forward to L2");
+    formData.append("Update_remark", forwardRemark);
+
+    try {
+      const response = await fetch(
+        "https://namami-infotech.com/ITAM/api/support/update_status_with_subticket.php",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Ticket forwarded to L2 successfully.");
+        setTicket((prevTicket) => ({
+          ...prevTicket,
+          Status: "Forward to L2",
+          UpdateDateTime: new Date().toISOString(),
+          Update_remark: forwardRemark,
+        }));
+        setForwardRemark("");
+        setForwardImage(null);
+      } else {
+        alert(data.message || "Failed to forward the ticket.");
+      }
+    } catch (error) {
+      alert("Error while forwarding to L2. Try again.");
     }
   };
 
@@ -201,6 +237,47 @@ const TicketDetail = () => {
             </Button>
           </Box>
         )}
+      {userDetails.Role === "ERPADMIN" && ticket.Status === "Open" && (
+        <Box mt="30px">
+          <Typography variant="h6" gutterBottom>
+            Forward to L2
+          </Typography>
+
+          <TextField
+            label="Forward Remark"
+            variant="outlined"
+            fullWidth
+            value={forwardRemark}
+            onChange={(e) => setForwardRemark(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+
+          <Button variant="outlined" component="label" sx={{ mb: 2 }}>
+            Upload Image
+            <input
+              type="file"
+              hidden
+              accept="image/*"
+              onChange={(e) => setForwardImage(e.target.files[0])}
+            />
+          </Button>
+
+          {forwardImage && (
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              Selected File: {forwardImage.name}
+            </Typography>
+          )}
+
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleForwardToL2}
+            sx={{ backgroundColor: colors.redAccent[600] }}
+          >
+            Forward to L2
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 };
