@@ -33,6 +33,7 @@ const TicketDetail = () => {
           // If the user is not an admin and this ticket doesn't belong to them, show an error or redirect
           if (
             userDetails.Role !== "Admin" &&
+            userDetails.Role !== "ERPADMIN" &&
             data.EmpId !== userDetails.EmpId
           ) {
             setError("You are not authorized to view this ticket.");
@@ -106,19 +107,58 @@ const TicketDetail = () => {
     <Box m="20px">
       <Header title={`Ticket ID: ${ticket.id}`} subtitle="Ticket Details" />
 
-      <Box mt="20px">
-        <Typography variant="h6">Employee ID: {ticket.EmpId}</Typography>
-        <Typography variant="h6">Category: {ticket.Category}</Typography>
-        <Typography variant="h6">Remark: {ticket.Remark}</Typography>
-        <Typography variant="h6">Status: {ticket.Status}</Typography>
-        <Typography variant="h6">
-          Date Created: {new Date(ticket.DateTime).toLocaleString()}
+      <Box
+        mt="20px"
+        display="grid"
+        gridTemplateColumns="180px 1fr"
+        rowGap={2}
+        columnGap={2}
+      >
+        <Typography variant="h6" fontWeight="bold">
+          Employee ID:
+        </Typography>
+        <Typography variant="h6">{ticket.EmpId}</Typography>
+
+        <Typography variant="h6" fontWeight="bold">
+          Category:
+        </Typography>
+        <Typography variant="h6">{ticket.Category}</Typography>
+
+        <Typography variant="h6" fontWeight="bold">
+          Remark:
+        </Typography>
+        <Typography
+          variant="h6"
+          component="div"
+          dangerouslySetInnerHTML={{ __html: ticket.Remark }}
+        />
+
+        <Typography variant="h6" fontWeight="bold">
+          Status:
+        </Typography>
+        <Typography variant="h6">{ticket.Status}</Typography>
+
+        <Typography variant="h6" fontWeight="bold">
+          Date Created:
         </Typography>
         <Typography variant="h6">
-          Update Remark: {ticket.Update_remark}
+          {new Date(ticket.DateTime).toLocaleString()}
+        </Typography>
+
+        <Typography variant="h6" fontWeight="bold">
+          Update Remark:
+        </Typography>
+        <Typography
+          variant="h6"
+          component="div"
+          dangerouslySetInnerHTML={{ __html: ticket.Update_remark || "-" }}
+        />
+
+        <Typography variant="h6" fontWeight="bold">
+          Last Updated:
         </Typography>
         <Typography variant="h6">
-          Last Updated: {new Date(ticket.UpdateDateTime).toLocaleString()}
+          {new Date(ticket.UpdateDateTime).toLocaleString()}
         </Typography>
       </Box>
 
@@ -135,38 +175,32 @@ const TicketDetail = () => {
         )}
       </Box>
 
-      {/* Update form for Admins */}
-      {userDetails.Role === "Admin" && ticket.Status == "Open" && (
-        <Box mt="20px">
-          <Typography variant="h6" gutterBottom>
-            Resolve Ticket
-          </Typography>
-          {/* <TextField
-            label="Status"
-            variant="outlined"
-            fullWidth
-            value={status}
-            disabled // Prevent editing of the status field
-            sx={{ mb: 2 }}
-          /> */}
-          <TextField
-            label="Update Remark"
-            variant="outlined"
-            fullWidth
-            value={updateRemark}
-            onChange={(e) => setUpdateRemark(e.target.value)}
-            sx={{ mb: 2 }}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleUpdateSubmit}
-            sx={{ backgroundColor: colors.blueAccent[600] }}
-          >
-            Mark as Resolved
-          </Button>
-        </Box>
-      )}
+      {((userDetails.Role === "Admin" &&
+        (ticket.Category === "Hardware" || ticket.Category === "Software")) ||
+        (userDetails.Role === "ERPADMIN" && ticket.Category === "ERP365")) &&
+        ticket.Status === "Open" && (
+          <Box mt="20px">
+            <Typography variant="h6" gutterBottom>
+              Resolve Ticket
+            </Typography>
+            <TextField
+              label="Update Remark"
+              variant="outlined"
+              fullWidth
+              value={updateRemark}
+              onChange={(e) => setUpdateRemark(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleUpdateSubmit}
+              sx={{ backgroundColor: colors.blueAccent[600] }}
+            >
+              Mark as Resolved
+            </Button>
+          </Box>
+        )}
     </Box>
   );
 };

@@ -14,6 +14,8 @@ import {
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useNavigate } from "react-router-dom";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css"; // Import Quill styles
 
 const RaiseTicket = () => {
   const theme = useTheme();
@@ -134,42 +136,45 @@ const RaiseTicket = () => {
             >
               <MenuItem value="Hardware">Hardware</MenuItem>
               <MenuItem value="Software">Software</MenuItem>
-              {/* Add more categories as needed */}
+              <MenuItem value="ERP365">ERP365</MenuItem>
             </Select>
           </FormControl>
 
-          <TextField
-            fullWidth
-            variant="outlined"
-            label="Problem Description"
-            name="Remark"
-            value={formData.Remark}
-            onChange={handleChange}
-            required
-            multiline
-            rows={4}
-            sx={{
-              gridColumn: "span 2",
-              "& .MuiInputLabel-root": {
-                color: "white",
-              },
-              "& .MuiInputLabel-root.Mui-focused": {
-                color: "white",
-              },
-              "& .MuiOutlinedInput-root": {
-                color: "white",
-                "& fieldset": {
-                  borderColor: "white",
+          
+          <Box sx={{ gridColumn: "span 2" }}>
+            <Typography sx={{ color: "white", mb: "5px" }}>
+              Problem Description
+            </Typography>
+            <ReactQuill
+              theme="snow"
+              value={formData.Remark}
+              onChange={(value) => setFormData({ ...formData, Remark: value })}
+              required
+              multiline
+              rows={4}
+              sx={{
+                gridColumn: "span 2",
+                "& .MuiInputLabel-root": {
+                  color: "white",
                 },
-                "&:hover fieldset": {
-                  borderColor: colors.greenAccent[500],
+                "& .MuiInputLabel-root.Mui-focused": {
+                  color: "white",
                 },
-                "&.Mui-focused fieldset": {
-                  borderColor: colors.greenAccent[600],
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": {
+                    borderColor: "white",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: colors.greenAccent[500],
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: colors.greenAccent[600],
+                  },
                 },
-              },
-            }}
-          />
+              }}
+            />
+          </Box>
 
           <Box>
             <InputLabel sx={{ color: "white" }}>

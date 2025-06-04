@@ -21,6 +21,7 @@ const location = useLocation(); // Get current location
   const statusFilter = queryParams.get("status"); // Extract 'status' query parameter
 
   const userDetails = JSON.parse(localStorage.getItem('userDetails'));
+  const isErpAdmin = userDetails?.Role === 'ERPADMIN';
   const isAdmin = userDetails?.Role === 'Admin';
   const empId = userDetails?.EmpId;
 
@@ -28,9 +29,13 @@ const location = useLocation(); // Get current location
     const fetchTicketData = async () => {
       try {
         let url = "https://namami-infotech.com/ITAM/api/support/get_ticket.php";
-        if (!isAdmin) {
+       if (isErpAdmin) {
+          url += `?Role=ERPADMIN`; // <-- NEW: Filter by ERP365 tickets on backend
+        }
+        else if (!isAdmin) {
           url += `?EmpId=${empId}`;
         }
+        
         const response = await fetch(url);
         const data = await response.json();
 
